@@ -1,0 +1,24 @@
+{
+  "name": "ftp-clean-deploy",
+  "version": "0.1.0",
+  "description": "Ftp Client. Uploads only changed files. Optionally deletes all remote files first or files not present from the local directory.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pungggi/ftp-clean-deploy.git"
+  },
+  "keywords": [
+    "ftp",
+    "deploy",
+    "sync"
+  ],
+  "author": "A. Pungitore",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pungggi/ftp-clean-deploy/issues"
+  },
+  "homepage": "https://github.com/pungggi/ftp-clean-deploy#readme"
+}
