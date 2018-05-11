@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/pungggi/ftp-clean-deploy/issues"
   },
-  "homepage": "https://github.com/pungggi/ftp-clean-deploy#readme"
+  "homepage": "https://github.com/pungggi/ftp-clean-deploy#readme",
+  "dependencies": {
+    "ftp": "^0.3.10",
+    "klaw": "^2.1.1"
+  }
 }
