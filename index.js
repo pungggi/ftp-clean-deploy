@@ -1,6 +1,6 @@
 const fs = require('fs')
 const ftp = require('ftp')
-const klaw = require('klaw')
+const klawSync = require('klaw-sync')
 
 class FtpClient {
   constructor(
@@ -43,6 +43,15 @@ class FtpClient {
   }
 
   _ready(){
+    
+    let pathsLocal
+    try {
+      pathsLocal = klawSync(this.config.localRoot)
+    } catch (er) {
+      console.error(er)
+    }
+    console.dir(pathsLocal)
+
     this.verbose && console.log('Ready..')
     this.Ftp.cwd(this.config.remoteRoot, (error) => {
       if(error){
@@ -50,15 +59,7 @@ class FtpClient {
       }
     })
 
-    klaw(this.config.localRoot)
-      .on('data', item => console.log(item.path))
-      .on('error', (error, item) => {
-        if(error){
-          this._error(error)
-        }
-      })
-      .on('end', (items) => console.dir(items))
-
+    
 
     this.Ftp.list( (error, list) => {
       if(error){
