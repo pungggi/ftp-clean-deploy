@@ -7,7 +7,7 @@ client.config = {
   user: 'b22_21288105',
   password: '979899Ap..',
   localRoot: 'test/Changed',
-  remoteRoot: '/htdocs'
+  remoteRoot: '/htdocs/test'
 }
 client.verbose = true
 
