@@ -90,47 +90,42 @@ class FtpClient {
       if(error){
         this._error(error)
       }
-        this.Ftp.lastMod(this.config.remoteRoot+'/'+listRemote[2].name, (error, lastMod) => {
+      
+      let dirRemote = this.config.remoteRoot
+      let dirLocale = this.config.localRoot
+      // console.dir(getLocalDirectories(this.config.localRoot))
+      // console.dir(getRemoteDirectories(list))
+      
+      const filesLocal = getLocalFiles(dirLocale)
+      const filesRemote = getRemoteFiles(listRemote)
+
+      console.log(dirRemote)
+      console.log(filesLocal)
+      console.log(filesRemote)
+      // this.Ftp.end()
+      filesRemote.map(item => {
+        const filenameRemote = item.split(';')[0]
+        
+        !filesLocal.includes(item) && this.Ftp.delete(dirRemote+'/'+filenameRemote, (error) => {
           if(error){
             this._error(error)
           }
-          let dirRemote = this.config.remoteRoot
-          let dirLocale = this.config.localRoot
-          // console.dir(getLocalDirectories(this.config.localRoot))
-          // console.dir(getRemoteDirectories(list))
-          
-          const filesLocal = getLocalFiles(dirLocale)
-          const filesRemote = getRemoteFiles(listRemote)
+          this.verbose && console.log('Deleted : '+filenameRemote)
+        }) 
+      })
 
-          console.log(dirRemote)
-          console.log(filesLocal)
-          console.log(filesRemote)
-          // this.Ftp.end()
-          filesRemote.map(item => {
-            const filenameRemote = item.split(';')[0]
-           
-            !filesLocal.includes(item) && this.Ftp.delete(dirRemote+'/'+filenameRemote, (error) => {
-              if(error){
-                this._error(error)
-              }
-              this.verbose && console.log('Deleted : '+filenameRemote)
-            }) 
-          })
-
-          filesLocal.map(item => {
-            const filenameLocal = item.split(';')[0]
-            !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocal),dirRemote+'/'+filenameLocal, (error) => {
-              if(error){
-                this._error(error)
-              }
-              this.verbose && console.log('Uploaded : '+filenameLocal)
-            })
-          })
-
-          this.Ftp.end()
+      filesLocal.map(item => {
+        const filenameLocal = item.split(';')[0]
+        !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocal),dirRemote+'/'+filenameLocal, (error) => {
+          if(error){
+            this._error(error)
+          }
+          this.verbose && console.log('Uploaded : '+filenameLocal)
         })
-      }   
-    )
+      })
+
+      this.Ftp.end()     
+    })
   }
 
   _error(message) {

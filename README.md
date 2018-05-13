@@ -6,8 +6,9 @@ Usage
 ----
 ### Default Configuration
 
-By default old remote files are replaced by newer local ones.
+By default remote files, where the modification date and size differs from the local one, are replaced. It does not matter if the remote file is newer. 
 If a file does not exits locally it will be also deleted remotely.
+The same principle applies to whole directories.
 All other files are not changed or removed. 
 
 ```js
@@ -30,6 +31,7 @@ The result will be like described:
 - ~~2.txt 2017-01-01 11:00~~
 - 3.txt 2017-01-01 11:00
 - 4.txt 2018-08-08 08:17
+- 5.txt 2017-01-01 11:00
 
 
 *Remote Files*
@@ -46,11 +48,21 @@ client.run()
 - *(deleted)*
 - 3.txt 2017-01-01 11:00 *(not touched)*
 - 4.txt 2018-08-08 08:17 *(replaced)*
+- 5.txt 2017-01-01 11:00 *(added)*
 
+### Comparison 
+By default remote files, where the modification date and size differs from the local one, are replace but you can turn this off with `compareBy` and compare just the filename.
+```js
+const client = new FtpClient({
+  ...
+  compareBy: 'name' // default is 'name,date,size'
+})
+```
 
 ### Delete all remote files
 
 By setting `deleteRemoteAll` to true, all remote files present in the `remoteRoot` are deleted first.
+This setting can be overwritten by `deleteRemoteNever`.
 
 ```js
 const client = new FtpClient({
@@ -95,7 +107,7 @@ client.run()
 ### Never delete remote files
 
 You can choose to not delete remote files, even if locally they do not exists anymore by setting `deleteRemoteNever` to true.
-
+This setting overwrites `deleteRemoteAll`.
 
 ```js
 const client = new FtpClient({
