@@ -23,6 +23,6 @@
   "homepage": "https://github.com/pungggi/ftp-clean-deploy#readme",
   "dependencies": {
     "ftp": "^0.3.10",
-    "klaw-sync": "^4.0.0"
+    "klaw": "^2.1.1"
   }
 }
