@@ -51,7 +51,7 @@ client.run()
 - 5.txt 2017-01-01 11:00 *(added)*
 
 ### Comparison 
-By default remote files, where the modification date and size differs from the local one, are replace but you can turn this off with `compareBy` and compare just the filename.
+By default remote files, where the modification date and size differs from the local one, are replaced. You can turn this off with `compareBy` and compare just by filename for example.
 ```js
 const client = new FtpClient({
   ...
@@ -66,12 +66,7 @@ This setting can be overwritten by `deleteRemoteNever`.
 
 ```js
 const client = new FtpClient({
-  host: 'ftp.host.com',
-  port: 21,
-  user: 'uploader',
-  password: '1234',
-  localRoot: './public',
-  remoteRoot: '/htdocs',
+  ...
   deleteRemoteAll: true,
 })
 ```
@@ -111,12 +106,7 @@ This setting overwrites `deleteRemoteAll`.
 
 ```js
 const client = new FtpClient({
-  host: 'ftp.host.com',
-  port: 21,
-  user: 'uploader',
-  password: '1234',
-  localRoot: './public',
-  remoteRoot: '/htdocs',
+  ...
   deleteRemoteNever: true,
 })
 ```
