@@ -73,6 +73,9 @@ class FtpClient {
     const comparisonDelimiter = ';'
     const formatForComparison = (name, date, size) => {
       let comparisonString = `${name}${comparisonDelimiter}`
+      if (typeof this.config.compareBy === 'undefined') {
+        return comparisonString += ' c'
+      } 
       if ( this.config.compareBy.includes('date') ) {
         comparisonString += date
       }
@@ -102,13 +105,20 @@ class FtpClient {
       
       let dirRemote = this.config.remoteRoot
       let dirLocale = this.config.localRoot
-      // console.dir(getLocalDirectories(dirLocale))
-      // console.dir(getRemoteDirectories(list))
 
-      this.Ftp.end() // for testing directories walking logic only stop here
+      const allLocalDirectories = getLocalDirectories(dirLocale) 
+      const allRemoteDirectories = getRemoteDirectories(listRemote) 
+
+      console.log(allLocalDirectories)
+      console.log(allRemoteDirectories)
+
+      //this.Ftp.end() // for testing directories walking logic only stop here
+      //return
+      const filesLocal = getLocalFiles(dirLocale)
       if(!this.config.deleteRemoteNever){
         getRemoteFiles(listRemote).map(item => {
-        const filenameRemote = item.split(comparisonDelimiter)[0]    
+          const filenameRemote = item.split(comparisonDelimiter)[0]    
+          console.log(deleteRemoteAll)
           (!filesLocal.includes(item) || this.config.deleteRemoteAll) && this.Ftp.delete(dirRemote+'/'+filenameRemote, (error) => {
             if(error){
               this._error(error)
@@ -118,7 +128,7 @@ class FtpClient {
         })
       }
 
-      getLocalFiles(dirLocale).map(item => {
+      filesLocal.map(item => {
         const filenameLocale = item.split(comparisonDelimiter)[0]
         !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocal),dirRemote+'/'+filenameLocale, (error) => {
           if(error){
