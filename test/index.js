@@ -7,8 +7,10 @@ client.config = {
   user: 'b22_21288105',
   password: '979899Ap..',
   localRoot: 'test/Changed',
-  remoteRoot: '/htdocs/test'
+  remoteRoot: '/htdocs/test',
+  compareBy: 'name,size'
 }
 client.verbose = true
+
 
 client.run()

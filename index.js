@@ -22,6 +22,15 @@ class FtpClient {
   }
 
   run(){
+    if (typeof this.config.compareBy === 'undefined') {
+      this.config.compareBy = 'name'
+    } 
+    if (typeof this.config.deleteRemoteAll === 'undefined') {
+      this.config.deleteRemoteAll = false
+    } 
+    if (typeof this.config.deleteRemoteNever === 'undefined') {
+      this.config.deleteRemoteNever = false
+    } 
     this.verbose && console.log(this.config)  
     this._connect()
   }
@@ -56,7 +65,7 @@ class FtpClient {
     // region helper functions
     const isLocalDirectory = source => fs.lstatSync(source).isDirectory()
     const isLocalFile = source => fs.lstatSync(source).isFile()
-    const getLocalDirectories = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isLocalDirectory)
+    const getLocalDirectories = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isLocalDirectory).map(source => source.split(path.sep).pop())
     const getLocalFiles = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isLocalFile).map(transformForComparison)
     const transformForComparison = source => {
       const stat = fs.statSync(source)
@@ -72,20 +81,20 @@ class FtpClient {
     }
     const comparisonDelimiter = ';'
     const formatForComparison = (name, date, size) => {
-      let comparisonString = `${name}${comparisonDelimiter}`
-      if (typeof this.config.compareBy === 'undefined') {
-        return comparisonString += ' c'
-      } 
+      let comparisonString = name + comparisonDelimiter
+      
       if ( this.config.compareBy.includes('date') ) {
         comparisonString += date
       }
       if ( this.config.compareBy.includes('size') ) {
         comparisonString += size
       }
+      return comparisonString
     }
+ 
     const isRemoteDirectory = source => source.type === 'd' && source.name != '.' && source.name != '..'
     const isRemoteFile = source => source.type === '-'
-    const getRemoteDirectories = source => source.filter(isRemoteDirectory)
+    const getRemoteDirectories = source => source.filter(isRemoteDirectory).map(file => file.name)
     const getRemoteFiles = source => source.filter(isRemoteFile).map(file => formatForComparison(file.name, 
       new Date(
         file.date.getUTCFullYear(),
@@ -106,39 +115,61 @@ class FtpClient {
       let dirRemote = this.config.remoteRoot
       let dirLocale = this.config.localRoot
 
-      const allLocalDirectories = getLocalDirectories(dirLocale) 
-      const allRemoteDirectories = getRemoteDirectories(listRemote) 
+      const directoriesLocal = getLocalDirectories(dirLocale) 
+      const directoriesRemote = getRemoteDirectories(listRemote) 
 
-      console.log(allLocalDirectories)
-      console.log(allRemoteDirectories)
-
-      //this.Ftp.end() // for testing directories walking logic only stop here
-      //return
-      const filesLocal = getLocalFiles(dirLocale)
       if(!this.config.deleteRemoteNever){
-        getRemoteFiles(listRemote).map(item => {
-          const filenameRemote = item.split(comparisonDelimiter)[0]    
-          console.log(deleteRemoteAll)
-          (!filesLocal.includes(item) || this.config.deleteRemoteAll) && this.Ftp.delete(dirRemote+'/'+filenameRemote, (error) => {
+        directoriesRemote.map(dir => {
+          if (!this.config.deleteRemoteAll && directoriesLocal.includes(dir))
+            return
+
+          const dirsubRemote = dir
+console.log(dirRemote +'/'+dirsubRemote)
+          this.Ftp.rmdir(dirRemote +'/'+dirsubRemote, true, (error) => {
             if(error){
               this._error(error)
             }
-            this.verbose && console.log('Deleted : '+filenameRemote)
-          }) 
+            this.verbose && console.log('Deleted : '+dirsubRemote)
+          })
         })
       }
 
-      filesLocal.map(item => {
-        const filenameLocale = item.split(comparisonDelimiter)[0]
-        !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocal),dirRemote+'/'+filenameLocale, (error) => {
-          if(error){
-            this._error(error)
-          }
-          this.verbose && console.log('Uploaded : '+filenameLocale)
-        })
-      })
+      console.log(directoriesLocal)
+      console.log(directoriesRemote)
+      
+     
+      // const filesLocal = getLocalFiles(dirLocale)
+      // const filesRemote = getRemoteFiles(listRemote)
+      // console.log(filesLocal)
+      // console.log(filesRemote)
+      // if(!this.config.deleteRemoteNever){
+      //   filesRemote.map(item => {
+          
+      //     if (!this.config.deleteRemoteAll && filesLocal.includes(item))
+      //       return
+          
+      //     const filenameRemote = item.split(comparisonDelimiter)[0]  
+           
+      //     this.Ftp.delete(dirRemote+'/'+filenameRemote, (error) => {
+      //       if(error){
+      //         this._error(error)
+      //       }
+      //       this.verbose && console.log('Deleted : '+filenameRemote)
+      //     }) 
+      //   })
+      // }
 
-      this.Ftp.end()     
+      // filesLocal.map(item => {
+      //   const filenameLocale = item.split(comparisonDelimiter)[0]
+      //   !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocale),dirRemote+'/'+filenameLocale, (error) => {
+      //     if(error){
+      //       this._error(error)
+      //     }
+      //     this.verbose && console.log('Uploaded : '+filenameLocale)
+      //   })
+      // })
+
+      //this.Ftp.end()     
     })
   }
 
