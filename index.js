@@ -141,7 +141,7 @@ class FtpClient {
       })
     }
     
-    const compareDirectories = (dirLocale, listRemote) => {
+    const compareDirectories = (dirLocale, listRemote, dirRemote) => {
       const directoriesLocal = getLocalDirectories(dirLocale) 
       const directoriesRemote = getRemoteDirectories(listRemote) 
 
@@ -182,7 +182,7 @@ class FtpClient {
       let dirRemote = this.config.remoteRoot
       let dirLocale = this.config.localRoot
 
-      compareDirectories(dirLocale, listRemote)
+      compareDirectories(dirLocale, listRemote, dirRemote)
       compareFiles(dirLocale, listRemote, dirRemote)
 
       //this.Ftp.end()     
