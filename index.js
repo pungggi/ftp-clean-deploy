@@ -132,12 +132,7 @@ class FtpClient {
 
       filesLocal.map(item => {
         const filenameLocale = item.split(comparisonDelimiter)[0]
-        !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocale),dirRemote+'/'+filenameLocale, (error) => {
-          if(error){
-            this._error(error)
-          }
-          this.verbose && console.log('Uploaded : '+dirRemote+'/'+filenameLocale)
-        })
+        !filesRemote.includes(item) && this._upload(dirLocale, filenameLocale, dirRemote)
       })
     }
     
@@ -168,6 +163,7 @@ class FtpClient {
           }
           this.verbose && console.log('Uploaded : '+dirRemote+'/'+dirnameLocal)
 
+          // loop localdir and upload all files
         })
       })
 
@@ -190,6 +186,14 @@ class FtpClient {
     })
   }
 
+  _upload(dirLocale, filenameLocale, dirRemote){
+    this.Ftp.put(path.join(dirLocale, filenameLocale),dirRemote+'/'+filenameLocale, (error) => {
+      if(error){
+        this._error(error)
+      }
+      this.verbose && console.log('Uploaded : '+dirRemote+'/'+filenameLocale)
+    })
+  }
   _error(message) {
     console.error(message)
   }
