@@ -54,14 +54,6 @@ class FtpClient {
 
   _ready(){
     
-    this.Ftp.cwd(this.config.remoteRoot, (error) => {
-      if(error){
-        this._error(error)
-      }
-
-      this.verbose && console.log('Ready..'+this.config.remoteRoot)
-    })
-
     // region helper functions
     const isLocalDirectory = source => fs.lstatSync(source).isDirectory()
     const isLocalFile = source => fs.lstatSync(source).isFile()
@@ -172,6 +164,14 @@ class FtpClient {
       console.log(directoriesRemote)
     }
 
+    this.Ftp.cwd(this.config.remoteRoot, (error) => {
+      if(error){
+        this._error(error)
+      }
+
+      this.verbose && console.log('Ready..'+ this.config.remoteRoot)
+    })
+
     this.Ftp.list( (error, listRemote) => {
       if(error){
         this._error(error)
@@ -182,17 +182,15 @@ class FtpClient {
 
       compareDirectories(dirLocale, listRemote, dirRemote)
       compareFiles(dirLocale, listRemote, dirRemote)
-
-      //this.Ftp.end()     
     })
   }
 
   _upload(dirLocale, filenameLocale, dirRemote){
-    this.Ftp.put(path.join(dirLocale, filenameLocale),dirRemote+'/'+filenameLocale, (error) => {
+    this.Ftp.put(path.join(dirLocale, filenameLocale), dirRemote+'/'+filenameLocale, (error) => {
       if(error){
         this._error(error)
       }
-      this.verbose && console.log('Uploaded : '+dirRemote+'/'+filenameLocale)
+      this.verbose && console.log('Uploaded : '+ dirRemote+'/'+filenameLocale)
     })
   }
   _error(message) {
