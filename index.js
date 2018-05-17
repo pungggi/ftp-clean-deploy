@@ -150,20 +150,21 @@ class FtpClient {
             if(error){
               this._error(error)
             }
-            this.verbose && console.log('Deleted : '+dirRemote +'/'+dirsubRemote)
+            this.verbose && console.log('Deleted directory and content: '+dirRemote +'/'+dirsubRemote)
           })
         })
       }
 
       directoriesLocal.map(item => {
         const dirnameLocal = item.split(comparisonDelimiter)[0]
-        !directoriesRemote.includes(item) && this.Ftp.mkdir(dirRemote+'/'+dirnameLocal, (error) => {
+        const dirRemoteNew = dirRemote+'/'+dirnameLocal
+        !directoriesRemote.includes(item) && this.Ftp.mkdir(dirRemoteNew, (error) => {
           if(error){
             this._error(error)
           }
-          this.verbose && console.log('Uploaded : '+dirRemote+'/'+dirnameLocal)
+          this.verbose && console.log('Uploaded : '+ dirRemoteNew)
 
-          // loop localdir and upload all files
+          getLocalFiles(path.join(dirLocale, dirnameLocal)).map(item => this._upload(dirLocale, item.split(comparisonDelimiter)[0], dirRemoteNew))
         })
       })
 
