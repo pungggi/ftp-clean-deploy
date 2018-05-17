@@ -136,7 +136,7 @@ class FtpClient {
           if(error){
             this._error(error)
           }
-          this.verbose && console.log('Uploaded : '+filenameLocale)
+          this.verbose && console.log('Uploaded : '+dirRemote+'/'+filenameLocale)
         })
       })
     }
@@ -166,7 +166,8 @@ class FtpClient {
           if(error){
             this._error(error)
           }
-          this.verbose && console.log('Uploaded : '+dirnameLocal)
+          this.verbose && console.log('Uploaded : '+dirRemote+'/'+dirnameLocal)
+
         })
       })
 
