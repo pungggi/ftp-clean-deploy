@@ -106,15 +106,42 @@ class FtpClient {
         file.date.getUTCMilliseconds()
     ), file.size))
     // endregion
-    
-    this.Ftp.list( (error, listRemote) => {
-      if(error){
-        this._error(error)
-      }
-      
-      let dirRemote = this.config.remoteRoot
-      let dirLocale = this.config.localRoot
 
+    const compareFiles = (dirLocale, listRemote, dirRemote) => {
+      const filesLocal = getLocalFiles(dirLocale)
+      const filesRemote = getRemoteFiles(listRemote)
+
+      console.log(filesLocal)
+      console.log(filesRemote)
+      if(!this.config.deleteRemoteNever){
+        filesRemote.map(item => {
+          
+          if (!this.config.deleteRemoteAll && filesLocal.includes(item))
+            return
+          
+          const filenameRemote = item.split(comparisonDelimiter)[0]  
+          
+          this.Ftp.delete(dirRemote+'/'+filenameRemote, (error) => {
+            if(error){
+              this._error(error)
+            }
+            this.verbose && console.log('Deleted : '+filenameRemote)
+          }) 
+        })
+      }
+
+      filesLocal.map(item => {
+        const filenameLocale = item.split(comparisonDelimiter)[0]
+        !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocale),dirRemote+'/'+filenameLocale, (error) => {
+          if(error){
+            this._error(error)
+          }
+          this.verbose && console.log('Uploaded : '+filenameLocale)
+        })
+      })
+    }
+    
+    const compareDirectories = (dirLocale, listRemote) => {
       const directoriesLocal = getLocalDirectories(dirLocale) 
       const directoriesRemote = getRemoteDirectories(listRemote) 
 
@@ -145,37 +172,18 @@ class FtpClient {
 
       console.log(directoriesLocal)
       console.log(directoriesRemote)
-         
-      const filesLocal = getLocalFiles(dirLocale)
-      const filesRemote = getRemoteFiles(listRemote)
-      console.log(filesLocal)
-      console.log(filesRemote)
-      if(!this.config.deleteRemoteNever){
-        filesRemote.map(item => {
-          
-          if (!this.config.deleteRemoteAll && filesLocal.includes(item))
-            return
-          
-          const filenameRemote = item.split(comparisonDelimiter)[0]  
-           
-          this.Ftp.delete(dirRemote+'/'+filenameRemote, (error) => {
-            if(error){
-              this._error(error)
-            }
-            this.verbose && console.log('Deleted : '+filenameRemote)
-          }) 
-        })
-      }
+    }
 
-      filesLocal.map(item => {
-        const filenameLocale = item.split(comparisonDelimiter)[0]
-        !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocale),dirRemote+'/'+filenameLocale, (error) => {
-          if(error){
-            this._error(error)
-          }
-          this.verbose && console.log('Uploaded : '+filenameLocale)
-        })
-      })
+    this.Ftp.list( (error, listRemote) => {
+      if(error){
+        this._error(error)
+      }
+      
+      let dirRemote = this.config.remoteRoot
+      let dirLocale = this.config.localRoot
+
+      compareDirectories(dirLocale, listRemote)
+      compareFiles(dirLocale, listRemote, dirRemote)
 
       //this.Ftp.end()     
     })
