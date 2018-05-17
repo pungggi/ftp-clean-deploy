@@ -174,37 +174,32 @@ class FtpClient {
       console.log(directoriesRemote)
     }
 
-    this.Ftp.cwd(this.config.remoteRoot, (error) => {
-      if(error){
-        this._error(error)
-      }
 
       this.verbose && console.log('Ready..'+ this.config.remoteRoot)
-    })
 
-    this.Ftp.list( (error, listRemote) => {
-      if(error){
-        this._error(error)
-      }
-      
       let dirRemote = this.config.remoteRoot
-      // let dirLocale = this.config.localRoot
       
       klaw(this.config.localRoot)
         .pipe(excludeFiles)
         .on('data', item => {
           const dirLocaleActual = item.path.replace(__dirname+path.sep, '')
           const dir = dirLocaleActual.replace(this.config.localRoot.replace('/', '\\'),'')
-          const dirRemoteActual = dirRemote +'/'+ dir 
-          console.log(dirLocaleActual)
-          console.log(dirRemoteActual)
-          
-          // compareDirectories(dirLocaleActual, listRemote, dirRemoteActual)
-          // compareFiles(dirLocaleActual, listRemote, dirRemoteActual)
-        })
-      // compareDirectories(dirLocale, listRemote, dirRemote)
-      // compareFiles(dirLocale, listRemote, dirRemote)
-    })
+          const dirRemoteActual = dirRemoteActual.replace(/\\/g, '/')
+
+          this.Ftp.cwd(dirRemoteActual, (error) => {
+            if(error){
+              this._error(error)
+            }
+      
+            this.Ftp.list( (error, listRemote) => {
+              if(error){
+                this._error(error)
+              }
+              compareDirectories(dirLocaleActual, listRemote, dirRemoteActual)
+              compareFiles(dirLocaleActual, listRemote, dirRemoteActual)
+            })            
+          })      
+        })  
   }
 
   _upload(dirLocale, filenameLocale, dirRemote){
