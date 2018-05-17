@@ -1,6 +1,8 @@
 const fs = require('fs')
 const ftp = require('ftp')
 const path = require('path')
+const klaw = require('klaw')
+const through2 = require('through2')
 
 class FtpClient {
   constructor(
@@ -55,6 +57,14 @@ class FtpClient {
   _ready(){
     
     // region helper functions
+    const excludeDirectories = through2.obj(function (item, enc, next) {
+      if (!item.stats.isDirectory()) this.push(item)
+      next()
+    })
+    const excludeFiles = through2.obj(function (item, enc, next) {
+      if (!item.stats.isFile()) this.push(item)
+      next()
+    })
     const isLocalDirectory = source => fs.lstatSync(source).isDirectory()
     const isLocalFile = source => fs.lstatSync(source).isFile()
     const getLocalDirectories = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isLocalDirectory).map(source => source.split(path.sep).pop())
@@ -178,10 +188,22 @@ class FtpClient {
       }
       
       let dirRemote = this.config.remoteRoot
-      let dirLocale = this.config.localRoot
-
-      compareDirectories(dirLocale, listRemote, dirRemote)
-      compareFiles(dirLocale, listRemote, dirRemote)
+      // let dirLocale = this.config.localRoot
+      
+      klaw(this.config.localRoot)
+        .pipe(excludeFiles)
+        .on('data', item => {
+          const dirLocaleActual = item.path.replace(__dirname+path.sep, '')
+          const dir = dirLocaleActual.replace(this.config.localRoot.replace('/', '\\'),'')
+          const dirRemoteActual = dirRemote +'/'+ dir 
+          console.log(dirLocaleActual)
+          console.log(dirRemoteActual)
+          
+          // compareDirectories(dirLocaleActual, listRemote, dirRemoteActual)
+          // compareFiles(dirLocaleActual, listRemote, dirRemoteActual)
+        })
+      // compareDirectories(dirLocale, listRemote, dirRemote)
+      // compareFiles(dirLocale, listRemote, dirRemote)
     })
   }
 
