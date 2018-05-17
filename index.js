@@ -119,20 +119,39 @@ class FtpClient {
       const directoriesRemote = getRemoteDirectories(listRemote) 
 
       if(!this.config.deleteRemoteNever){
-        directoriesRemote.map(dir => {
-          if (!this.config.deleteRemoteAll && directoriesLocal.includes(dir))
+        directoriesRemote.map(item => {
+          const dirsubRemote = item
+          if (!this.config.deleteRemoteAll && directoriesLocal.includes(dirsubRemote))
             return
 
-          const dirsubRemote = dir
-console.log(dirRemote +'/'+dirsubRemote)
           this.Ftp.rmdir(dirRemote +'/'+dirsubRemote, true, (error) => {
             if(error){
               this._error(error)
             }
-            this.verbose && console.log('Deleted : '+dirsubRemote)
+            this.verbose && console.log('Deleted : '+dirRemote +'/'+dirsubRemote)
           })
         })
       }
+
+      directoriesLocal.map(item => {
+        const dirnameLocal = item.split(comparisonDelimiter)[0]
+        !directoriesRemote.includes(item) && this.Ftp.mkdir(dirRemote+'/'+dirnameLocal, (error) => {
+          if(error){
+            this._error(error)
+          }
+          this.verbose && console.log('Uploaded : '+dirnameLocal)
+        })
+      })
+
+      // filesLocal.map(item => {
+      //   const filenameLocale = item.split(comparisonDelimiter)[0]
+      //   !filesRemote.includes(item) && this.Ftp.put(path.join(dirLocale, filenameLocale),dirRemote+'/'+filenameLocale, (error) => {
+      //     if(error){
+      //       this._error(error)
+      //     }
+      //     this.verbose && console.log('Uploaded : '+filenameLocale)
+      //   })
+      // })
 
       console.log(directoriesLocal)
       console.log(directoriesRemote)
